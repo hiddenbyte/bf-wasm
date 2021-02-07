@@ -1,7 +1,6 @@
 package lexical_test
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
@@ -9,12 +8,10 @@ import (
 	"github.com/hiddenbyte/bf-wasm/quickcheck"
 )
 
-// brainfck random code generator
 type BrainfckCode string
 
-func generateRandomBrainfckCode() reflect.Value {
-	randomCode := BrainfckCode(quickcheck.StringContainingOnly([]rune{'>', '<', '+', '-', '.', ',', '[', ']'}))
-	return reflect.ValueOf(randomCode)
+func randBrainfckCode() interface{} {
+	return BrainfckCode(quickcheck.StringContainingOnly([]rune{'>', '<', '+', '-', '.', ',', '[', ']'}))
 }
 
 func isValidToken(token byte) bool {
@@ -22,7 +19,7 @@ func isValidToken(token byte) bool {
 }
 
 func TestTokenize(t *testing.T) {
-	quickcheck.AddRandomGenerator(generateRandomBrainfckCode)
+	quickcheck.AddRandomGenerator(randBrainfckCode)
 
 	quickcheck.Check(t, "empty", func() bool {
 		tokens, err := lexical.Tokenize(strings.NewReader(""))
@@ -55,7 +52,19 @@ func TestTokenize(t *testing.T) {
 		return len(bfCode) == len(tokens)
 	})
 
-	quickcheck.Check(t, "single", func(bfCode BrainfckCode) bool {
-		return false
+	quickcheck.Check(t, "token", func(bfCode BrainfckCode) bool {
+		tokensByRune := map[rune]byte{'>': lexical.IncDataPointerToken, '<': lexical.DecDataPointerToken, '+': lexical.IncDataToken, '-': lexical.DecDataToken, ',': lexical.InputToken, '.': lexical.OutputToken, '[': lexical.WhileOpenToken, ']': lexical.WhileCloseToken}
+
+		tokens, err := lexical.Tokenize(strings.NewReader(string(bfCode)))
+		if err != nil {
+			return false
+		}
+
+		for i, r := range bfCode {
+			if tokensByRune[r] != tokens[i] {
+				return false
+			}
+		}
+		return true
 	})
 }

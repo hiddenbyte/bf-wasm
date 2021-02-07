@@ -7,63 +7,25 @@ import (
 	"time"
 )
 
-// RandomGenerator random value generator
-type RandomGenerator func() reflect.Value
+var generatorsByType map[reflect.Type]RandomGenerator = map[reflect.Type]RandomGenerator{}
 
-var generatorsByType map[reflect.Type]RandomGenerator = map[reflect.Type]RandomGenerator{
-	reflect.TypeOf(""): RandomStringGenerator,
+func init() {
+	rand.Seed(time.Now().Unix())
+	AddRandomGenerator(func() interface{} { return String() })
 }
 
-// AddRandomGenerator installs a random generator
-func AddRandomGenerator(generator RandomGenerator) {
-	randomValue := generator()
-	t := randomValue.Type()
+// AddRandomGenerator instals
+func AddRandomGenerator(generatorFunc func() interface{}) {
+	g := RandomGenerator{generatorFunc}
+
+	t := g.Type()
 	_, exists := generatorsByType[t]
 	if exists {
 		panic("quickcheck: already exists")
 	}
-	generatorsByType[t] = generator
+
+	generatorsByType[t] = g
 	return
-}
-
-func init() {
-	rand.Seed(time.Now().Unix())
-}
-
-// Int returns an arbitrary non-negative integer value
-func Int() int {
-	return rand.Int()
-}
-
-// Boolean returns an arbitrary boolean value
-func Boolean() bool {
-	return Int()%2 == 0
-}
-
-// RandomStringGenerator returns a random value of type strings
-func RandomStringGenerator() reflect.Value {
-	randomString := []byte{}
-
-	close := Boolean()
-	for !close {
-		randomString = append(randomString, byte(Int()))
-		close = Boolean()
-	}
-
-	return reflect.ValueOf(string(randomString))
-}
-
-// StringContainingOnly returns an arbitrary string value contains only the specified chars
-func StringContainingOnly(chars []rune) string {
-	randomString := []rune{}
-
-	close := Boolean()
-	for !close {
-		randomString = append(randomString, chars[Int()%len(chars)])
-		close = Boolean()
-	}
-
-	return string(randomString)
 }
 
 // Check validates a property
@@ -96,7 +58,7 @@ func Check(t *testing.T, name string, propertyFunc interface{}) {
 		values := make([]reflect.Value, propertyFuncType.NumIn())
 		for i := 0; i < 100; i++ {
 			for i := 0; i < len(values); i++ {
-				values[i] = generators[i]()
+				values[i] = generators[i].Value()
 			}
 
 			returns := propertyFuncValue.Call(values)
