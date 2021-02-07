@@ -1,6 +1,7 @@
 package lexical_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -8,34 +9,53 @@ import (
 	"github.com/hiddenbyte/bf-wasm/quickcheck"
 )
 
-// GenBrainFckWithoutComments generates lexically valid brainfck code  without any comments
-func GenBrainFckWithoutComments() string {
-	return quickcheck.StringContainingOnly([]rune{'>', '<', '+', '-', '.', ',', '[', ']'})
+// brainfck random code generator
+type BrainfckCode string
+
+func generateRandomBrainfckCode() reflect.Value {
+	randomCode := BrainfckCode(quickcheck.StringContainingOnly([]rune{'>', '<', '+', '-', '.', ',', '[', ']'}))
+	return reflect.ValueOf(randomCode)
+}
+
+func isValidToken(token byte) bool {
+	return token >= lexical.IncDataPointerToken && token <= lexical.WhileCloseToken
 }
 
 func TestTokenize(t *testing.T) {
-	quickcheck.Check(t, "token", func() bool {
-		tokens, err := lexical.Tokenize(strings.NewReader(quickcheck.String()))
+	quickcheck.AddRandomGenerator(generateRandomBrainfckCode)
+
+	quickcheck.Check(t, "empty", func() bool {
+		tokens, err := lexical.Tokenize(strings.NewReader(""))
+		if err != nil {
+			return false
+		}
+
+		return len(tokens) == 0
+	})
+
+	quickcheck.Check(t, "ignore", func(a string) bool {
+		tokens, err := lexical.Tokenize(strings.NewReader(a))
 		if err != nil {
 			return false
 		}
 
 		for _, token := range tokens {
-			if token < lexical.DecDataPointerToken || token > lexical.WhileCloseToken {
+			if !isValidToken(token) {
 				return false
 			}
 		}
 		return true
 	})
 
-	quickcheck.Check(t, "len", func() bool {
-		lexicallyValidCode := GenBrainFckWithoutComments()
-
-		tokens, err := lexical.Tokenize(strings.NewReader(lexicallyValidCode))
+	quickcheck.Check(t, "len", func(bfCode BrainfckCode) bool {
+		tokens, err := lexical.Tokenize(strings.NewReader(string(bfCode)))
 		if err != nil {
 			return false
 		}
+		return len(bfCode) == len(tokens)
+	})
 
-		return len(lexicallyValidCode) == len(tokens)
+	quickcheck.Check(t, "single", func(bfCode BrainfckCode) bool {
+		return false
 	})
 }
