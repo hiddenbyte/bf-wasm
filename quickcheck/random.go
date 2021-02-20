@@ -61,6 +61,10 @@ func StringContainingOnly(chars []rune) string {
 	return string(randomString)
 }
 
+func OneOf(values ...interface{}) interface{} {
+	return values[Int()%len(values)]
+}
+
 // CreateOneOfGenerator creates a 'one of' random generator
 func CreateOneOfGenerator(values ...interface{}) func() interface{} {
 	return func() interface{} {
