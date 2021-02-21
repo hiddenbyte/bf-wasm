@@ -1,8 +1,16 @@
 # bf-wasm
 a brainf*ck compiler targeting wasm (text format)
 
-# Running bf-wasm
+## Installing
+
+### go get
 
 ```bash
-echo ",++." | bf-wasm > example.wat # Produces a WebAssemply in a text format
+go get github.com/hiddenbyte/bf-wasm
+```
+
+## Running bf-wasm
+
+```bash
+echo ",++." | bf-wasm > example.wat # Produces a WebAssemply module in a text format
 ```
