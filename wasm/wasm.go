@@ -1,6 +1,7 @@
 package wasm
 
 import (
+	"fmt"
 	"io"
 	"os"
 
@@ -20,21 +21,12 @@ const writeOutputID = text.AtomIdentifier("writeOutput")
 
 // EmitText emits WebAssembly text
 func EmitText(program syntax.StatementList, w io.Writer) error {
-
 	instructions := text.SymbolicExpressionList{
 		//Prologue
 		text.Int32Const(0),
 		text.LocalSet(localDataPointerID),
 	}
-
-	for _, statement := range program {
-		statement.SingleCharStatement(func(token byte) {
-			instructions = append(instructions, ToWASMInstructions(token)...)
-		})
-		statement.WhileStatement(func(l syntax.StatementList) {
-			// TODO: Implement
-		})
-	}
+	instructions = append(instructions, statementListToWASMInstructions(program, 0)...)
 
 	return text.Module(
 		// Types
@@ -69,20 +61,42 @@ func EmitText(program syntax.StatementList, w io.Writer) error {
 	).Print(os.Stdout)
 }
 
-// ToWASMInstructions maps an syntax.SingleCharStatement into a sequence of WASM instruction
-func ToWASMInstructions(token byte) []text.SymbolicExpression {
+// statementListToWASMInstructions maps an syntax.StatementList into a sequence of WASM instruction
+func statementListToWASMInstructions(p syntax.StatementList, depth int) []text.SymbolicExpression {
+	instructions := text.SymbolicExpressionList{}
+	for _, statement := range p {
+		statement.SingleCharStatement(func(token byte) {
+			instructions = append(instructions, toWASMInstructions(token)...)
+		})
+
+		statement.WhileStatement(func(l syntax.StatementList) {
+			loopLabel := text.AtomIdentifier(fmt.Sprintf("L%v", depth))
+			whileInstructions := statementListToWASMInstructions(l, depth+1)
+			whileInstructions = append(whileInstructions, text.LocalGet(localDataPointerID))
+			whileInstructions = append(whileInstructions, text.Load(text.I32))
+			whileInstructions = append(whileInstructions, text.BranchIf(loopLabel))
+			instructions = append(instructions, text.LocalGet(localDataPointerID))
+			instructions = append(instructions, text.Load(text.I32))
+			instructions = append(instructions, text.IfBlock(text.LoopBlock(loopLabel, whileInstructions), []text.SymbolicExpression{})...)
+		})
+	}
+	return instructions
+}
+
+// toWASMInstructions maps an syntax.SingleCharStatement into a sequence of WASM instruction
+func toWASMInstructions(token byte) []text.SymbolicExpression {
 	switch token {
 	case lexical.IncDataPointerToken:
 		return []text.SymbolicExpression{
 			text.LocalGet(localDataPointerID),
-			text.Int32Const(1),
+			text.Int32Const(4),
 			text.Add(text.I32),
 			text.LocalSet(localDataPointerID),
 		}
 	case lexical.DecDataPointerToken:
 		return []text.SymbolicExpression{
 			text.LocalGet(localDataPointerID),
-			text.Int32Const(1),
+			text.Int32Const(4),
 			text.Sub(text.I32),
 			text.LocalSet(localDataPointerID),
 		}

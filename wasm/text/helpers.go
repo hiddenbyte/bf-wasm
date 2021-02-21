@@ -118,6 +118,31 @@ func Sub(valType Atom) SymbolicExpression {
 	return Atom(fmt.Sprintf("%s.sub", valType))
 }
 
+// IfBlock creates a 'if "instructions" else "elseInstructions" end' control instruction
+func IfBlock(instructions []SymbolicExpression, elseInstructions []SymbolicExpression) []SymbolicExpression {
+	ifBlock := make([]SymbolicExpression, 0, len(instructions)+len(elseInstructions)+2)
+	ifBlock = append(ifBlock, Atom("if"))
+	ifBlock = append(ifBlock, instructions...)
+	ifBlock = append(ifBlock, Atom("else"))
+	ifBlock = append(ifBlock, elseInstructions...)
+	ifBlock = append(ifBlock, Atom("end"))
+	return ifBlock
+}
+
+// LoopBlock creates a 'loop inst* end' control instruction
+func LoopBlock(labelID AtomIdentifier, instructions []SymbolicExpression) []SymbolicExpression {
+	loopBlock := make([]SymbolicExpression, 0, len(instructions)+2)
+	loopBlock = append(loopBlock, Atom(fmt.Sprintf("loop %s", labelID)))
+	loopBlock = append(loopBlock, instructions...)
+	loopBlock = append(loopBlock, Atom("end"))
+	return loopBlock
+}
+
+// BranchIf creates a 'br_if' instruction
+func BranchIf(labelID AtomIdentifier) SymbolicExpression {
+	return Atom(fmt.Sprintf("br_if %s", labelID))
+}
+
 // Function creates a function definition
 func Function(id AtomIdentifier, typeUse SymbolicExpression, locals []SymbolicExpression, instructions []SymbolicExpression) SymbolicExpression {
 	expressions := make(SymbolicExpressionList, 0, 3+len(locals)+len(instructions))
