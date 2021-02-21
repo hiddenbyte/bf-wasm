@@ -2,6 +2,11 @@ package text
 
 import "fmt"
 
+// Value types
+
+// I32 signed int32 value type
+const I32 Atom = "i32"
+
 // Param creates a func parameter
 func Param(id AtomIdentifier, valType Atom) SymbolicExpression {
 	return SymbolicExpressionList{
@@ -15,6 +20,15 @@ func Param(id AtomIdentifier, valType Atom) SymbolicExpression {
 func Result(valType Atom) SymbolicExpression {
 	return SymbolicExpressionList{
 		Atom("result"),
+		valType,
+	}
+}
+
+// Local creates a func local
+func Local(id AtomIdentifier, valType Atom) SymbolicExpression {
+	return SymbolicExpressionList{
+		Atom("local"),
+		id,
 		valType,
 	}
 }
@@ -84,6 +98,26 @@ func Store(valType Atom) SymbolicExpression {
 	return Atom(fmt.Sprintf("%s.store", valType))
 }
 
+// LocalGet creates a local.get instruction
+func LocalGet(id AtomIdentifier) SymbolicExpression {
+	return Atom(fmt.Sprintf("local.get %s", id))
+}
+
+// LocalSet creates a local.get instruction
+func LocalSet(id AtomIdentifier) SymbolicExpression {
+	return Atom(fmt.Sprintf("local.set %s", id))
+}
+
+// Add creates an 'valType.add' instruction
+func Add(valType Atom) SymbolicExpression {
+	return Atom(fmt.Sprintf("%s.add", valType))
+}
+
+// Sub creates an 'valType.sub' instruction
+func Sub(valType Atom) SymbolicExpression {
+	return Atom(fmt.Sprintf("%s.sub", valType))
+}
+
 // Function creates a function definition
 func Function(id AtomIdentifier, typeUse SymbolicExpression, locals []SymbolicExpression, instructions []SymbolicExpression) SymbolicExpression {
 	expressions := make(SymbolicExpressionList, 0, 3+len(locals)+len(instructions))
@@ -118,6 +152,7 @@ func Module(types []SymbolicExpression, imports []SymbolicExpression, functions 
 	expressions = append(expressions, Atom("module"))
 	expressions = append(expressions, types...)
 	expressions = append(expressions, imports...)
+	expressions = append(expressions, SymbolicExpressionList{Atom("memory"), Atom("1")})
 	expressions = append(expressions, functions...)
 	expressions = append(expressions, exports...)
 	return expressions

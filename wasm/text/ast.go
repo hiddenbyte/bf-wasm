@@ -85,8 +85,3 @@ func (s Atom) Print(w io.Writer) error {
 	}
 	return err
 }
-
-// Value types
-
-// I32 signed int32 value type
-const I32 Atom = "i32"
