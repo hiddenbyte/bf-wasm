@@ -1,12 +1,8 @@
-const brainFck = {
-    importObject : {
+const Brainfck = {
+    newImportObject: (inputFunc, outputFunc) => ({
         io: {
-            readInput: function(){
-                return 4
-            },
-            writeOutput: function(value) {
-                alert(value);
-            }
+            readInput: () => inputFunc(),
+            writeOutput: (data) => { outputFunc(data); }
         }
-    }
+    })
 };
