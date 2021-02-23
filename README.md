@@ -88,7 +88,7 @@ Pointer :   ^
 
 The code above was taken from [https://en.wikipedia.org/wiki/Brainfuck](https://en.wikipedia.org/wiki/Brainfuck).
 
-**2 - Compile the `helloworld.bf` into WASM**
+**2 - Compile `helloworld.bf` into WASM**
 
 ```bash
 cat helloworld.bf | bf-wasm > helloworld.wat
