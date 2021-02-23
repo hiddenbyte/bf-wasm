@@ -1,7 +1,9 @@
 # bf-wasm
 a Brainfuck compiler targeting WASM
 
-`bf-wasm` compiles Brainfuck source code from the _standard input_ into a WASM module. The WASM module is written to the _standard ouput_. The WASM module is written in WebAssembly text format. The [wat2wasm](https://github.com/WebAssembly/wabt) - from The WebAssembly Binary Toolkit - should be used translate WebAssembly text format to the binary format.
+`bf-wasm` compiles Brainfuck source code from the _standard input_ into a WASM module. The WASM module is written to the _standard ouput_. The WASM module is written in WebAssembly text format.
+
+The [wat2wasm](https://github.com/WebAssembly/wabt) - from The WebAssembly Binary Toolkit - should be used to translate WebAssembly text format to the binary format.
 
 **What is Brainfuck?**
 
