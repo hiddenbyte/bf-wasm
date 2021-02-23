@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Example - Hello World</title>
+        <script src="brainfck_env.js"></script>
+        <script>
+            const importObj = Brainfck.newImportObject(
+                () => 0, // input function
+                data => { document.write(String.fromCharCode(data)); } // output function
+            );
+            
+            WebAssembly.instantiateStreaming(fetch("helloworld.wasm"), importObj).then(obj => {
+                obj.instance.exports.main(); // Execute
+            });
+        </script>
+    </head>
+    <body>
+    </body>
+</html>
