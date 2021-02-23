@@ -25,7 +25,7 @@ go get github.com/hiddenbyte/bf-wasm
 make build # build bf-wasm
 ```
 
-The `bf-wasm` executable is available at `./dist` after running `make build`.
+The `bf-wasm` executable is available at the `./dist` folder after running `make build`.
 
 ## Usage
 `bf-wasm` compiles Brainfuck source code from the _standard input_ into a WASM module. The WASM module is written to the _standard ouput_.
