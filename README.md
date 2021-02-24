@@ -38,7 +38,7 @@ cat example.bf | bf-wasm > example.wat
 
 #### Hello World
 
-**1.  Create a Brainfuck source code file named `helloworld.bf` containg the following code.**
+**1. Create a Brainfuck source code file named `helloworld.bf` containg the following code.**
 
 ```brainfuck
 [ This program prints "Hello World!" and a newline to the screen, its
@@ -88,7 +88,7 @@ Pointer :   ^
 
 The code above was taken from [https://en.wikipedia.org/wiki/Brainfuck](https://en.wikipedia.org/wiki/Brainfuck).
 
-**2. Compile `helloworld.bf` into WASM**
+**2. Compile `helloworld.bf` into WASM using bf-wasm**
 
 ```bash
 cat helloworld.bf | bf-wasm > helloworld.wat
@@ -121,11 +121,13 @@ curl https://raw.githubusercontent.com/hiddenbyte/bf-wasm/main/brainfck_env.js  
     <script src="brainfck_env.js"></script>
 
     <script>
-            // Whenever a brainfck program wants to read from std input - ',' command - the 'input' function is called.
-            const input = () => 0 
+            // This function is called when a brainfck program wants to read from std input. ',' command.
+            const input = () => 0; // 
 
-            // Whenever a brainfck program wants to write to std output - '.' command - the 'output' function is called.
-            const output = data => { document.write(String.fromCharCode(data)); } 
+            // This function is called when a brainfck program wants to write to std output. '.' command.
+            const output = data => { 
+                document.write(String.fromCharCode(data)); 
+            };
 
             // Create a brainfck WASM runtime environment with the specified I/O sources.
             const importObj = Brainfck.newImportObject(input, ouput);
@@ -142,4 +144,13 @@ curl https://raw.githubusercontent.com/hiddenbyte/bf-wasm/main/brainfck_env.js  
 
 **5. Execute**
 
-TBW
+The `helloworld.wasm`, `brainfck_env.js` and `index.html` files should be in the same folder. These files should be served by a HTTP server.
+
+Start a HTTP Server.
+
+```bash
+go get github.com/shurcooL/goexec
+goexec 'http.ListenAndServe(`:8080`, http.FileServer(http.Dir(`.`)))' # Start a HTTP server
+```
+
+Open [http://localhost:8080/index.html](http://localhost:8080/index.html). 
