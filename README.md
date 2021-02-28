@@ -1,5 +1,5 @@
 # bf-wasm
-a Brainfuck compiler targeting WASM
+a Brainfuck compiler targeting WebAssembly (or WASM)
 
 `bf-wasm` compiles Brainfuck source code from the _standard input_ into a WASM module. The WASM module is written to the _standard ouput_. The WASM module is written in WebAssembly text format.
 
