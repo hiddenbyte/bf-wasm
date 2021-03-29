@@ -1,2 +1,2 @@
-hello-world.wasm
-hello-world.wat
+*.wasm
+*.wat
